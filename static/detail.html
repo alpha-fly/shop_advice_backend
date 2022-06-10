@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+      integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+      crossorigin="anonymous"
+    />
+    <!-- Font Awesome CSS -->
+    <link
+      href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+    />
+    <link href="/mystyle.css" rel="stylesheet" />
+
+    <!-- Optional JavaScript --> 
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.js"
+      integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+      integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
+      integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <!-- <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script> -->
+
+    <script src="/api.js"></script>
+
+    <title>알파플라이의 게시판 | 게시글 상세 조회 </title>
+  </head>
+
+  <body>
+    <nav
+      class="navbar navbar-expand-sm navbar-dark bg-sparta justify-content-end"
+    >
+      <a class="navbar-brand" href="/articles.html">
+        <img
+          src="/logo_big_tr.png"
+          width="30"
+          height="30"
+          class="d-inline-block align-top"
+          alt=""
+        />
+        알파플라이의 게시판
+      </a>
+      <button
+        class="navbar-toggler ml-auto"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="true"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse collapse flex-grow-0 ml-auto" id="navbarSupportedContent" >     
+      </div>
+    </nav>
+
+    <div class="wrap">
+      <div class = "user" style="float:right; margin-bottom :20px">
+        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/login.html'" >로그인</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/register.html'">회원가입</button>
+        <button type="button" class="btn btn-outline-secondary" onclick="signOut()">로그아웃</button>
+      </div>
+
+      <div id = "articledetail" class="mb-5"></div> 
+
+        <button type="button" class="btn btn-outline-secondary" onclick="goRevisePage(articleId)">수정</button>                
+        <button type="button" class="btn btn-outline-secondary" onclick="deleteArticle(articleId)">삭제</button>            
+       
+      <div id = "commentsList" class="mb-5"></div>
+        
+        <div class="input-group mb-3" style="margin-top:20px;">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick = "comment(articleId)">댓글</button>
+          <input id = "comment" type="text" class="form-control" placeholder="댓글을 남겨주세요" aria-label="Example text with button addon" aria-describedby="button-addon1">
+        </div>    
+    </div>
+  </body>
+    
+    <script>
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const articleId = urlParams.get("articleId");
+      let article;
+      
+      $(document).ready(function () {
+        //게시글 상세 불러오기         
+        getArticleDetail(articleId, function(article){                
+        let date = new Date(article["date"]).toLocaleString();   
+
+        let htmlTemp = `<div class="card" style="width: 40rem;">
+                        <div class="card-header">
+                        제목: ${article["title"]}
+                        </div>
+                        <ul class="list-group list-group-flush">
+                        <li class="list-group-item">내  용: ${article["content"]}</li>                        
+                        <li class="list-group-item">작성자: ${article["user"]}</li>   
+                        <li class="list-group-item">작성일: ${date}</li>                                                                  
+                        </ul>
+                        </div>`                              
+        $("#articledetail").append(htmlTemp);        
+        })        
+
+        //댓글 불러오기
+        getCommentList(articleId, function (comments) {
+          for (let i = 0; i < comments.length; i++) {
+            make_card(comments[i]);
+          }
+          });             
+          
+        function make_card(item) {
+          let date = new Date(item["date"]).toLocaleString();                
+          let htmlTemp = `<div id="comments" style="margin-top: 35px; margin-bottom: 35px;">
+                            <div class="d-flex w-100 justify-content-between">
+                              <div id="comment${item["commentId"]}">
+                              <h5 id="og_comment${item["commentId"]}" class="mb-1" >${item["mention"]}</h5>
+                            </div>
+                            <small class="text-muted">${date}</small></div>
+                            <p class="mb-1">${item["user"]}</p>
+                            <small class="text-muted">
+                              <button id="rev_button${item["commentId"]}" onclick="makeReviseWindow(${item["commentId"]})">수정</button>
+                              <button id="del_button${item["commentId"]}" onclick="deleteComment(${item["commentId"]})">삭제</button>
+                            </small>                          
+                          </div>`    
+          $("#commentsList").append(htmlTemp);
+        }         
+        });     
+
+        //댓글 수정창 만들기
+        function makeReviseWindow (commentId) { 
+          let htmlTemp =`<div class="input-group mb-3" style="margin-top:20px;">                        
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick = "reviseComment(${commentId})">댓글수정</button>
+                        <input id="mention" type="text" class="form-control" placeholder="수정할 댓글을 남겨주세요" aria-label="Example text with button addon" aria-describedby="button-addon1">                        
+                        </div>`
+          $("#og_comment"+commentId).hide();
+          $("#del_button"+commentId).hide();
+          $("#rev_button"+commentId).hide();
+          $("#comment"+commentId).append(htmlTemp);          
+        }          
+
+    </script>
+  
+</html>
