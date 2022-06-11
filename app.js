@@ -18,7 +18,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 const app = express();
 const port = 3000;
 
-// const articleRouter = require('./routes/article');
+const articleRouter = require('./routes/articles');
 const userRouter = require('./routes/user');
 
 const requestMiddleware = (req, res, next) => {
@@ -32,7 +32,7 @@ app.use(express.json()); //JSON 데이터 parsing middleware
 app.use(express.urlencoded());
 app.use(requestMiddleware); // 콘솔에 request 들어오면 url이랑 날짜 찍어주는.
 
-// app.use('/api/article', [articleRouter]);
+app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
 
 app.get('/', (req, res) => {

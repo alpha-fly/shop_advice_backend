@@ -32,7 +32,7 @@ function writeArticle() {
 
     $.ajax({
         type: 'POST',
-        url: `/api/article/new_article`,
+        url: `/api/article`,
         headers: {
             authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -51,11 +51,11 @@ function writeArticle() {
                 alert('제목과 내용을 입력해주세요');
             }
 
-            window.location.reload();
+            //window.location.reload();
         },
         success: function (response) {
             alert(response['message']);
-            window.location.href = '/';
+          //window.location.href = '/';
         },
     });
 }
