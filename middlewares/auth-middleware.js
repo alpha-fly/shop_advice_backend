@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
     }
 
     try {
-        const { userId } = jwt.verify(tokenValue, 'jaysecretkeyissocomplex');
+        const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET_KEY);
 
         User.findById(userId)
             .exec()

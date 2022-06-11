@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const crypto = require("crypto"); // crypto 사용
 const Joi = require("joi");
@@ -5,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
+
 
 const postUsersSchema = Joi.object({
   // userId: 3~10글자, 알파벳 대소문자, 숫자 가능
@@ -114,8 +116,7 @@ router.post("/login", async (req, res) => {
       });
     const crypt_password = await makePasswordHashed(userId, password);
 
-    const user = await User.findOne({ userId, password:crypt_password }).exec(); 
-    console.log(user);
+    const user = await User.findOne({ userId, password:crypt_password }).exec();     
 
     if (!user) {
       res.status(400).send({
@@ -124,9 +125,13 @@ router.post("/login", async (req, res) => {
       return;
     }
 
+    console.log(process.env.JWT_SECRET_KEY)
+
     const token = jwt.sign(
-      { userId: user.userId }, //token 에 닉네임도 넣고 싶다면 여기에 추가하자.
-      "jaysecretkeyissocomplex" // 이 JSON secret key를 외부로 빼고 싶다. 
+      { userId: user.userId }, 
+      process.env.JWT_SECRET_KEY,
+      {expiresIn : "20m"}  
+        
     );
     res.send({
       token,

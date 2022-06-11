@@ -1,8 +1,9 @@
+require("dotenv").config();
 const express = require('express');
 const mongoose = require('mongoose');
 
 mongoose
-    .connect('mongodb://test:test@3.34.42.87:27017/admin', {
+    .connect(process.env.MONGODB, {
         dbName: 'shop_advice',
         ignoreUndefined: true,
         useNewUrlParser: true,
