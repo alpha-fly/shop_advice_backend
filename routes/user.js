@@ -153,30 +153,59 @@ router.get("/me", authMiddleware, async (req, res) => {
 module.exports = router;
 
 
-//좋아요
+//좋아요 /api/article/like/${articleId} 
 router.post("/like", authMiddleware, async (req, res) => {
     const { user } = res.locals;    
-    const { articleId } = req.body;    
-    let currentLikes = user.likes;
-    // console.log ("currentLikes :", currentLikes, "articleId :", articleId)
+    const { articleId } = req.body;   
+    // const article = Article.findOne({articleId:article.articleId}) 
+    // console.log (article)
+
+    let UserLikesArray = user.likes;
+    // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
     
-    if (currentLikes.includes(articleId)) {               
-        const likes = currentLikes.filter(item => item !== articleId);
+    if (UserLikesArray.includes(articleId)) {               
+        const likes = UserLikesArray.filter(item => item !== articleId);
         await User.updateOne(
             { userId: user.userId },
             { $set: { likes } }
         );
-        // console.log ("currentLikes :", likes, "articleId :", articleId)
+
+        const articleLikes = Article.fineOne({articleId})[likes] - 1
+        await Article.updateOne(
+            { articleId },
+            { $set: { "likes": articleLikes }}
+        )
+
+
+        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
         res.json({ success: true, message: '좋아요 해제하셨습니다.' });
     } else {
-        currentLikes.push(articleId);
-        const likes = currentLikes
+        UserLikesArray.push(articleId);
+        const likes = UserLikesArray
         await User.updateOne(
             { userId: user.userId },
             { $set: { likes } }
         );
-        // console.log ("currentLikes :", likes, "articleId :", articleId)
+
+        const articleLikes = Article.fineOne({articleId})[likes] + 1
+        await Article.updateOne(
+            { articleId },
+            { $set: { "likes": articleLikes }}
+        );
+        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
         res.json({ success: true, message: '좋아요 하셨습니다.' });
     }        
   });
   
+//좋아요 갯수 알려주기 ** 비로그인 기능임. 단순히 조회
+router.get("/api/article/like/${articleId}", async (req, res) => {    
+    const { articleId } = req.params;    
+    const article = await Articles.find({ articleId });
+    const likes = article["likes"];
+
+    res.json({
+        likes,
+    })
+
+});
+   
