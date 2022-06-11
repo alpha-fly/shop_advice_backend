@@ -1,3 +1,4 @@
+require("dotenv").config();
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
@@ -17,8 +18,7 @@ module.exports = (req, res, next) => {
 
         User.findOne({userId})
             .exec()
-            .then((user) => {
-                // 이 파트 다시 보기
+            .then((user) => {                
                 res.locals.user = user;
                 next();
             });

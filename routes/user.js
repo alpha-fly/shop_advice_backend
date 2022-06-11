@@ -173,7 +173,7 @@ router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) =
         const articleLikes = Article.fineOne({articleId})[likes] - 1
         await Article.updateOne(
             { articleId },
-            { $set: { "likes": articleLikes }}
+            { $set: { likes: articleLikes }}
         )
 
 
@@ -181,16 +181,16 @@ router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) =
         res.status(200).send({ message: "사세요! 해제하셨습니다."});
     } else {
         UserLikesArray.push(articleId);
-        const likes = UserLikesArray
+        // const likes = UserLikesArray
         await User.updateOne(
             { userId: user.userId },
-            { $set: { likes } }
+            { $set: { likes : UserLikesArray } }
         );
 
         const articleLikes = Article.fineOne({articleId})[likes] + 1
         await Article.updateOne(
             { articleId },
-            { $set: { "likes": articleLikes }}
+            { $set: { likes: articleLikes }}
         );
         // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
         res.status(200).send({ message: "사세요! 하셨습니다."});
