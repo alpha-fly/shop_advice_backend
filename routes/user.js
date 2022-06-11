@@ -154,9 +154,9 @@ module.exports = router;
 
 
 //좋아요 /api/article/like/${articleId} 
-router.post("/like", authMiddleware, async (req, res) => {
+router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) => {
     const { user } = res.locals;    
-    const { articleId } = req.body;   
+    const { articleId } = req.params;   
     // const article = Article.findOne({articleId:article.articleId}) 
     // console.log (article)
 
@@ -178,7 +178,7 @@ router.post("/like", authMiddleware, async (req, res) => {
 
 
         // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
-        res.json({ success: true, message: '좋아요 해제하셨습니다.' });
+        res.status(200).send({ message: "사세요! 해제하셨습니다."});
     } else {
         UserLikesArray.push(articleId);
         const likes = UserLikesArray
@@ -193,7 +193,7 @@ router.post("/like", authMiddleware, async (req, res) => {
             { $set: { "likes": articleLikes }}
         );
         // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
-        res.json({ success: true, message: '좋아요 하셨습니다.' });
+        res.status(200).send({ message: "사세요! 하셨습니다."});
     }        
   });
   
