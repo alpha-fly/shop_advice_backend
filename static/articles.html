@@ -97,6 +97,8 @@
         <button type="button" class="btn btn-outline-secondary" onclick="signOut()">로그아웃</button>
       </div>
 
+      <button type="button" class="btn btn-outline-secondary" onclick="like();" >좋아요</button>
+
       <div id="ArticleList" class="mb-5"></div>      
 
     </div>
@@ -111,6 +113,8 @@
           }
         });       
       });
+
+     
 
       function make_card(item) {
         let date = new Date(item["date"]).toLocaleString();                
