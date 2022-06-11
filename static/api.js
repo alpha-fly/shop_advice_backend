@@ -254,14 +254,14 @@ function getSelf(callback) {
 
 // 로그인
 function sign_in() {
-    let id = $('#inputid').val();
+    let userId = $('#inputid').val();
     let password = $('#inputPassword').val();
 
     $.ajax({
         type: 'POST',
-        url: '/api/user/auth',
+        url: '/api/user/login',
         data: {
-            id: id,
+            userId: userId,
             password: password,
         },
         success: function (response) {
@@ -276,19 +276,19 @@ function sign_in() {
 
 // 회원가입
 function sign_up() {
-    const id = $('#inputid').val();
+    const userId = $('#inputid').val();
     const nickname = $('#inputNickname').val();
-    const password1 = $('#inputPassword1').val();
-    const password2 = $('#inputPassword2').val();
+    const password = $('#inputPassword1').val();
+    const passwordCheck = $('#inputPassword2').val();
 
     $.ajax({
         type: 'POST',
-        url: '/api/user/new_user',
+        url: '/api/user/signup',
         data: {
-            id: id,
+            userId: userId,
             nickname: nickname,
-            password: password1,
-            confirmPassword: password2,
+            password: password,
+            passwordCheck: passwordCheck,
         },
         success: function (response) {
             customAlert('회원가입을 축하드립니다!', function () {
