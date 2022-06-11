@@ -15,7 +15,7 @@ module.exports = (req, res, next) => {
     try {
         const { userId } = jwt.verify(tokenValue, process.env.JWT_SECRET_KEY);
 
-        User.findById(userId)
+        User.findOne({userId})
             .exec()
             .then((user) => {
                 // 이 파트 다시 보기

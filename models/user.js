@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     nickname: String,
     password: String,
     salt: String, // 암호화를 위한 salt
+    likes: [],
 });
 
 module.exports = mongoose.model('User', UserSchema);

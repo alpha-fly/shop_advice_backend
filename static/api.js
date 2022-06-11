@@ -307,3 +307,35 @@ function signOut() {
     alert('로그아웃 하셨습니다.');
     window.location.href = '/';
 }
+
+
+// 좋아요(테스트) ** 메시지 잘 받아오네?
+function like() {     // 실제 활용시 아래 행 삭제하고 like 함수에 인자로 articleId 넣어줄 것
+    const articleId = 12
+
+    $.ajax({
+        type: 'POST',
+        url: '/api/user/like', // 실제 활용시 당연히 url 주소 바꿔야 함
+        headers: {
+            authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        data : {
+            articleId,
+        },
+        success: function (response) {
+            alert(response['message']);            
+        },
+        error: function (xhr, status, error) {
+            if (xhr.status == 401) {
+                alert('로그인이 필요합니다.');
+            } else {
+                localStorage.clear();
+                alert('알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.');
+            }
+            //window.location.href = '/';
+        },
+    });
+}
+
+
+
