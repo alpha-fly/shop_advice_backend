@@ -40,19 +40,6 @@ app.use(cors({
     credential: 'true' // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
 }));
 
-// const whitelist = ["http://116.32.50.167:3000", "http://122.39.18.60:3000", "http://118.217.75.17:3000"];
-// const corsOptions = {
-//   origin: function (origin, callback) {
-//     if (whitelist.indexOf(origin) !== -1) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not Allowed Origin!"));
-//     }
-//   },
-//   credential: 'true',
-// };
-// app.use(cors(corsOptions)); 
-
 app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
 app.use('/api/image', [imageRouter]); // multer 사용하여 파일 업로드하는 기능 관련 라우팅
