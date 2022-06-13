@@ -35,22 +35,22 @@ app.use(express.json()); //JSON 데이터 parsing middleware
 app.use(express.urlencoded());
 app.use(requestMiddleware); // 콘솔에 request 들어오면 url이랑 날짜 찍어주는.
 
-// app.use(cors({(corsOptions)
-//     origin: 'http://118.217.75.17:3000', // 출처 허용 옵션, 아스테리스크로 놓지 말고 frontend 출처로 변경w할 것!
-//     credential: 'true' // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
-// }));
+app.use(cors({
+    origin: 'http://localhost:3000', // 출처 허용 옵션, 아스테리스크로 놓지 말고 frontend 출처로 변경w할 것!
+    credential: 'true' // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
+}));
 
-const whitelist = ["http://116.32.50.167:3000", "http://122.39.18.60:3000", "http://118.217.75.17:3000"];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not Allowed Origin!"));
-    }
-  },
-  credential: 'true',
-};
+// const whitelist = ["http://116.32.50.167:3000", "http://122.39.18.60:3000", "http://118.217.75.17:3000"];
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     if (whitelist.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error("Not Allowed Origin!"));
+//     }
+//   },
+//   credential: 'true',
+// };
  
 app.use(cors(corsOptions)); 
 
