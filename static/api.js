@@ -315,7 +315,7 @@ function like() {     // 실제 활용시 아래 행 삭제하고 like 함수에
 
     $.ajax({
         type: 'POST',
-        url: '/api/user/like', // 실제 활용시 당연히 url 주소 바꿔야 함
+        url: '/api/user/like', // 실제 활용시 당연히 url 주소 바꿔야 함 /api/article/like/${articleId} 이런 식으로
         headers: {
             authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -338,4 +338,14 @@ function like() {     // 실제 활용시 아래 행 삭제하고 like 함수에
 }
 
 
+// 좋아요 갯수 조회
+function getLikesCount(articleId, callback) {
+    $.ajax({
+        type: 'GET',
+        url: `/api/article/like/${articleId}`,
 
+        success: function (response) {
+            callback(response.likes);
+        },
+    });
+}

@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const articlesSchema = mongoose.Schema({
   articleId: {
-    type: Number,
-    order:Number,
+    type: Number,    
   },
+  
   nickname:{
     type:String,
   },
+
   title: {
     type: String,
     required: true,

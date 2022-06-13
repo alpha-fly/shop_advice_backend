@@ -97,4 +97,60 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
   }
 });
 
+
+//좋아요 (초안! 테스트 전)
+router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) => {
+    const { user } = res.locals;    
+    const { articleId } = req.params;   
+    // const article = Article.findOne({articleId:article.articleId}) 
+    // console.log (article)
+
+    let UserLikesArray = user.likes;
+    // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+    
+    if (UserLikesArray.includes(articleId)) {               
+        const likes = UserLikesArray.filter(item => item !== articleId);
+        await User.updateOne(
+            { userId: user.userId },
+            { $set: { likes } }
+        );
+
+        const articleLikes = Article.fineOne({articleId})[likes] - 1
+        await Article.updateOne(
+            { articleId },
+            { $set: { likes: articleLikes }}
+        )
+
+        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+        res.status(200).send({ message: "사세요! 해제하셨습니다."});
+    } else {
+        UserLikesArray.push(articleId);
+        // const likes = UserLikesArray
+        await User.updateOne(
+            { userId: user.userId },
+            { $set: { likes : UserLikesArray } }
+        );
+
+        const articleLikes = Article.fineOne({articleId})[likes] + 1
+        await Article.updateOne(
+            { articleId },
+            { $set: { likes: articleLikes }}
+        );
+        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+        res.status(200).send({ message: "사세요! 하셨습니다."});
+    }        
+  });
+
+
+//좋아요 갯수 알려주기 (초안! 테스트 이전) ** 비로그인 기능임. 단순히 조회
+router.get("/api/article/like/${articleId}", async (req, res) => {    
+    const { articleId } = req.params;    
+    const article = await Articles.find({ articleId });
+    const likes = article["likes"];
+
+    res.json({
+        likes,
+    })
+});
+
 module.exports = router;

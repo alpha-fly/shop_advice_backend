@@ -151,32 +151,3 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
-
-
-//좋아요
-router.post("/like", authMiddleware, async (req, res) => {
-    const { user } = res.locals;    
-    const { articleId } = req.body;    
-    let currentLikes = user.likes;
-    // console.log ("currentLikes :", currentLikes, "articleId :", articleId)
-    
-    if (currentLikes.includes(articleId)) {               
-        const likes = currentLikes.filter(item => item !== articleId);
-        await User.updateOne(
-            { userId: user.userId },
-            { $set: { likes } }
-        );
-        // console.log ("currentLikes :", likes, "articleId :", articleId)
-        res.json({ success: true, message: '좋아요 해제하셨습니다.' });
-    } else {
-        currentLikes.push(articleId);
-        const likes = currentLikes
-        await User.updateOne(
-            { userId: user.userId },
-            { $set: { likes } }
-        );
-        // console.log ("currentLikes :", likes, "articleId :", articleId)
-        res.json({ success: true, message: '좋아요 하셨습니다.' });
-    }        
-  });
-  
