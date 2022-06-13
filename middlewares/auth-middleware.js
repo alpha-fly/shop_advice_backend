@@ -26,6 +26,6 @@ module.exports = (req, res, next) => {
         res.status(401).send({
             errorMessage: '로그인 후 사용하세요',
         });
-        return;
+        return;        
     }
 };

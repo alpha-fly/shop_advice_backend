@@ -6,7 +6,6 @@ const router = express.Router();
 // const user = require('../models/user');
 // const path = require("path");
 
-
 // multer를 이용하여 업로드한 파일을 저장할 경로 및 파일명 설정함
 const storage  = multer.diskStorage({ 
   destination(req, file, cb) {
@@ -25,11 +24,11 @@ router.get('/', function(req,res){
   res.render('upload');
 });
 
-// "/api/image/upload" 주소로 요청하면 uploadWithOriginalFilename 미들웨어가 실행되어 지정한 경로에 이미지가 저장되고,
+// "/api/image/" 주소로 요청하면 uploadWithOriginalFilename 미들웨어가 실행되어 지정한 경로에 이미지가 저장되고,
 // req.file에 `attachment` 즉 지금 저장한 파일의 정보를 주는데, 이것을 "fileInfo"에 담아서 리턴해준다.
-router.post('/upload', uploadWithOriginalFilename.single('attachment'), function(req,res){ 
+router.post('/', uploadWithOriginalFilename.single('attachment'), function(req,res){ 
   console.log (req.file) // 테스트하며 req.file의 내용을 보고 필요한 부분만 가공한 다음에 아래 res.json 내용을 바꿔줄 예정이다.
-  res.json( {fileInfo: req.file} );  
+  res.json( {message: '파일 업로드 성공!', fileInfo: req.file} );  
 });
 
 module.exports = router;
