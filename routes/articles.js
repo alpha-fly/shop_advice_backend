@@ -1,6 +1,11 @@
 const express = require('express');
 const authMiddleware = require("../middlewares/auth-middleware");
 const Articles = require('../models/articles');
+const user = require('../models/user');
+
+const multer = require("multer");
+const path = require("path");
+
 
 
 const router = express.Router();
@@ -22,7 +27,7 @@ router.get('/',async(req,res) => {
 router.get('/:articleId',async(req,res) => {
     const {articleId} = req.params;
 
-    const [articles] = await Articles.find({articleId:Number(articleId)})
+    const [articles] = await Articles.find({id:articleId})
     res.json({
        articles,
     });
@@ -30,28 +35,32 @@ router.get('/:articleId',async(req,res) => {
 
 
 //게시글 작성
-router.post('/',authMiddleware, async(req,res) => {
-    const {nickname} = res.locals.user;
+router.post('/',upload.single("image"),authMiddleware, async(req,res) => {
+    const {userId} = res.locals.user;
+    const writeId = await user.findOne({id:userId}).exec();
     const {title,content,price,shopUrl,imageUrl,date} = req.body;
 
+    const image = `/images/${req.file.filename}`; //이미지
+    
     
     if(!title||!content){
         res.status(400).send({
             errormessage: '제목과 내용을 작성해주세요.',
-        })
+        });
     }
 
-    await Articles.create({
+     const createdArticles = await Articles.create({
         title,
-        nickname,
+        user:writeId.user,
         content,
+        image,
         price,
         shopUrl,
         imageUrl,
         date,
         });
 
-        res.status(201).send({message:'게시글이 작성되었습니다.'});
+        res.status(201).send({articles: createdArticles,message:'게시글이 작성되었습니다.'});
 });
 
 
@@ -63,41 +72,31 @@ router.put('/:articleId',authMiddleware ,async(req,res) => {
     const {title,content,price,shopUrl,imageUrl} = req.body;
 
     const existArticles = await Articles.find({
-        articleId:Number(articleId),
+        id: articleId,
     });
 
-    if(!existArticles.length){res.status(400).send({
-        errormessage: '사용자가 입력한 게시글이 아닙니다.',
-    });
+
+    if(!existArticles.length){
+        res.status(400).send({ errormessage: "게시글 작성자가 아닙니다." })
     }else{
-
-    await Articles.updateOne({
-        articleId:Number(articleId)
-    },
-    {$set:{title,content,price,shopUrl,imageUrl}});
-    res.status(200).send({
-        message: '수정이 완료되었습니다.',
-    });
-};
+        await Articles.updateOne({ id: articleId }, { $set: { title, content,price,shopUrl,imageUrl } });
+        res.status(200).send({ message: "수정이 완료되었습니다." });
+    }
 });
 
 //게시글 삭제
 router.delete('/:articleId',authMiddleware, async(req,res) => {
-    const {userId} = res.locals.user;
+    
     const {articleId} = req.params;
 
-    const existArticles = await Articles.find({articleId:Number(articleId)});
+    const existArticles = await Articles.find({id:articleId});
 
-    if(existArticles[0].userId === userId){
-        await Articles.deleteOne({articleId:Number(articleId)});
-        res.status(200).send({
-            message: '삭제가 완료되었습니다.',
-        });
+    if(!existArticles.length){
+        res.status(400).json({ errormassege: "게시글 작성자가 아닙니다." })
     }else{
-        return res.status(400).send({
-            errormessage:'글 작성자가 아닙니다.',
-        });
-    };
+        await Articles.deleteOne({ id: articleId });
+        res.status(200).json({ message: "게시글을 삭제하였습니다." });
+    }
 });
 
 module.exports = router;
