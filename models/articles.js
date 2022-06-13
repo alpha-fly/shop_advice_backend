@@ -2,16 +2,13 @@ const mongoose = require("mongoose");
 
 const articlesSchema = mongoose.Schema({
   articleId: {
-    type: Number,     
+    type: Number,    
   },
   
-  numId:{type:Number},
-  attachment:{type:mongoose.Schema.Types.ObjectId, ref:'file'}, // 1
-  createdAt:{type:Date, default:Date.now},
-  user: {
-    type: String,
-    
-},
+  nickname:{
+    type:String,
+  },
+
   title: {
     type: String,
     required: true,
@@ -33,10 +30,17 @@ const articlesSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
-  date: {
-    type: Date,
+  category:{
+    type: String
+  },
+  createdAt: {
+    type: String,
     default: new Date(),
   },
+  likes:{
+    type: Number,
+  }
 });
+
 
 module.exports = mongoose.model("Articles", articlesSchema);
