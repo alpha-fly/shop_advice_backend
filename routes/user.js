@@ -27,7 +27,7 @@ router.post("/signup", async (req, res) => {
 
     if (password !== passwordCheck) {
       res.status(400).send({
-        errorMessage: "패스워드가 패스워드 확인란과 동일하지 않습니다.",
+        errorMessage: "패스워드가 불일치합니다.",
       });
       return;
     }
@@ -87,7 +87,7 @@ router.post("/signup", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(400).send({
-      errorMessage: "요청한 데이터 형식이 올바르지 않습니다.",
+      errorMessage: "회원가입 형식을 확인해주세요.",
     });
   }
 });
@@ -144,9 +144,11 @@ router.post("/login", async (req, res) => {
 
 // 유저정보조회 (토큰 조회. 로그인 여부 확인)
 router.get("/me", authMiddleware, async (req, res) => {
-  const { user } = res.locals;
+  const { user } = res.locals;  
+  const userInfo = { userId : user.userId, nickname: user.nickname}
+  console.log (userInfo);
   res.send({
-    user,
+   userInfo,
   });
 });
 
