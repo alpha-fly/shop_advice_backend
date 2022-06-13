@@ -4,8 +4,6 @@ const Articles = require("../models/articles");
 const User = require("../models/user");
 const Counters = require("../models/counters");
 
-const multer = require("multer");
-const path = require("path");
 
 const router = express.Router();
 
@@ -22,10 +20,10 @@ router.get("/", async (req, res) => {
 //게시글 상세 조회
 router.get("/:articleId", async (req, res) => {
   const { articleId } = req.params;
+  const [article] = await Articles.find({ articleId: articleId });
 
-  const [articles] = await Articles.find({ articleId: articleId }); // findOne으로 변경
   res.json({
-    articles,
+    article,
   });
 });
 
@@ -42,9 +40,9 @@ router.post("/", authMiddleware, async (req, res) => {
   counter.save();
   let articleId = counter.count;
 
-  if (!title || !content) {
+  if (!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
     res.status(400).send({
-      errormessage: "제목과 내용을 작성해주세요.",
+      errorMessage: "작성란을 모두 입력해주세요.",
     });
   }
 
@@ -61,30 +59,41 @@ router.post("/", authMiddleware, async (req, res) => {
 
   res
     .status(201)
-    .send({ articles: createdArticles, message: "게시글이 작성되었습니다." }); //게시글 작성 여부만 리턴하면 되지 않나요? 작성된 게시글을 보내주는 이유는?
+    .send({ article: createdArticles, message: "게시글을 작성했습니다." });
 });
+
 
 //게시글 수정
 router.put("/:articleId", authMiddleware, async (req, res) => {
+  const userNickname = res.locals.user.nickname;
   const { articleId } = req.params;
-  const { title, content, price, shopUrl, imageUrl, category } = req.body;
-
-  const existArticles = await Articles.find({
-    articleId: articleId,
+  const { title, content, price, shopUrl, imageUrl,category } = req.body;
+  const existArticles = await Articles.findOne({
+    articleId:articleId
   });
-
-  // 해당 게시글의 작성자가 맞는지를 확인하는 로직이 없습니다.
-  if (!existArticles.length) {
-    // 이 조건문은 articleId로 작성된 게시글이 있는지만을 검사하는데 왜 이 조건을 검사하나요?
-    res.status(400).send({ errormessage: "게시글 작성자가 아닙니다." });
-  } else {
+  if(!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
+     res.status(400).send({
+      errorMessage: "작성란을 모두 입력해주세요.",
+    });
+  }
+console.log(existArticles)
+  if (userNickname === existArticles['nickname']) {
     await Articles.updateOne(
       { articleId: articleId },
-      { $set: { title, content, price, shopUrl, imageUrl, category } }
+      { $set:
+        {
+        title,
+        content,
+        price,
+        shopUrl,
+        imageUrl,
+        category } }
     );
-    res.status(200).send({ message: "수정이 완료되었습니다." });
+  } else {
+    return res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다."  });
   }
 });
+
 
 //게시글 삭제
 router.delete("/:articleId", authMiddleware, async (req, res) => {
@@ -100,8 +109,9 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
     res
       .status(400)
       .send({ errorMessage: "자신이 작성한 글만 삭제 가능합니다." });
-  }
+  }  
 });
+
 
 //좋아요 API
 router.post("/like/:articleId", authMiddleware, async (req, res) => {
