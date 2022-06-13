@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require('express');
 const mongoose = require('mongoose');
 
+
 mongoose
     .connect(process.env.MONGODB, {
         dbName: 'shop_advice',
@@ -31,6 +32,8 @@ app.use(express.static('static'));
 app.use(express.json()); //JSON 데이터 parsing middleware
 app.use(express.urlencoded());
 app.use(requestMiddleware); // 콘솔에 request 들어오면 url이랑 날짜 찍어주는.
+
+
 
 app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
