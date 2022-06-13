@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 
 const articlesSchema = mongoose.Schema({
   articleId: {
-    type: Number,
-    
-    
+    type: Number,     
   },
+  
   numId:{type:Number},
   attachment:{type:mongoose.Schema.Types.ObjectId, ref:'file'}, // 1
   createdAt:{type:Date, default:Date.now},
