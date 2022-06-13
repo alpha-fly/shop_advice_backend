@@ -71,7 +71,7 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
   });
   
   if(!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
-    res.status(400).send({
+     res.status(400).send({
       errorMessage: "작성란을 모두 입력해주세요.",
     });
   }
