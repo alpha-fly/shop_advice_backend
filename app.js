@@ -51,8 +51,7 @@ app.use(cors({
 //   },
 //   credential: 'true',
 // };
- 
-app.use(cors(corsOptions)); 
+// app.use(cors(corsOptions)); 
 
 app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
