@@ -1,6 +1,7 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/auth-middleware");
 const Articles = require("../models/articles");
+const User = require("../models/user");
 const Counters = require("../models/counters");
 
 const multer = require("multer");
@@ -99,15 +100,19 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
 
 
 //좋아요 (초안! 테스트 전)
-router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) => {
+router.post("/like/:articleId", authMiddleware, async (req, res) => {
+    // 변수 UserLikesArray에, User DB 에서 해당 유저가 지금까지 좋아요 한 글들의 articleId를 모아놓은 [배열] user.likes를 할당한다. 
     const { user } = res.locals;    
-    const { articleId } = req.params;   
-    // const article = Article.findOne({articleId:article.articleId}) 
-    // console.log (article)
-
     let UserLikesArray = user.likes;
-    // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+
+    // 변수 articleLikes에, 지금 좋아요 또는 좋아요 해제 하려는 글에 지금까지 좋아요 갯수가 몇 개인지 불러온다.
+    const { articleId } = req.params;
+    const article = await Articles.findOne({articleId:Number(articleId)});   // articleId 데이터타입이 Number로 들어가 있어서. 수정 필요. 
+    let articleLikes = article["likes"];      
     
+    // UserLikesArray에 이미 좋아요 하려는 글의 articleId가 포함되어 있다면, 좋아요 해제를 실행한다. 
+    // UserLikesArray에서 현재 글의 articleId를 제거해주고
+    // 현재 글의 likes 숫자를 하나 줄여준다.
     if (UserLikesArray.includes(articleId)) {               
         const likes = UserLikesArray.filter(item => item !== articleId);
         await User.updateOne(
@@ -115,38 +120,43 @@ router.post("/api/article/like/${articleId}", authMiddleware, async (req, res) =
             { $set: { likes } }
         );
 
-        const articleLikes = Article.fineOne({articleId})[likes] - 1
-        await Article.updateOne(
+        articleLikes--
+        await Articles.updateOne(
             { articleId },
             { $set: { likes: articleLikes }}
         )
-
-        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+       
         res.status(200).send({ message: "사세요! 해제하셨습니다."});
+    
+    // UserLikesArray에 이미 좋아요 하려는 글의 articleId가 없다면! 좋아요를 실행한다. 
+    // UserLikesArray에서 현재 글의 articleId를 추가해주고
+    // 현재 글의 likes 숫자를 하나 더해준다.
     } else {
-        UserLikesArray.push(articleId);
-        // const likes = UserLikesArray
+        UserLikesArray.push(articleId);        
         await User.updateOne(
             { userId: user.userId },
             { $set: { likes : UserLikesArray } }
         );
 
-        const articleLikes = Article.fineOne({articleId})[likes] + 1
-        await Article.updateOne(
+        articleLikes++
+        await Articles.updateOne(
             { articleId },
             { $set: { likes: articleLikes }}
-        );
-        // console.log ("UserCurrentLikes :", UserLikesArray, "articleId :", articleId)
+        );        
         res.status(200).send({ message: "사세요! 하셨습니다."});
     }        
   });
 
 
 //좋아요 갯수 알려주기 (초안! 테스트 이전) ** 비로그인 기능임. 단순히 조회
-router.get("/api/article/like/${articleId}", async (req, res) => {    
+router.get("/like/:articleId", async (req, res) => {    
     const { articleId } = req.params;    
-    const article = await Articles.find({ articleId });
+    const article = await Articles.find( {articleId} );
+    console.log (articleId, article)
+
     const likes = article["likes"];
+
+    console.log (likes)
 
     res.json({
         likes,
