@@ -64,11 +64,12 @@ router.post("/", authMiddleware, async (req, res) => {
 
 //게시글 수정
 router.put("/:articleId", authMiddleware, async (req, res) => {
+  const userNickname = res.locals.user.nickname;
   const { articleId } = req.params;
   const { title, content, price, shopUrl, imageUrl,category } = req.body;
 
-  const existArticles = await Articles.find({
-    articleId: articleId,
+  const existArticles = await Articles.findOne({
+    articleId:articleId
   });
   
   if(!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
@@ -76,32 +77,41 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
       errorMessage: "작성란을 모두 입력해주세요.",
     });
   }
-
-  if (!existArticles.length) {
-    res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다." });
-  } else {
+console.log(existArticles)
+  if (userNickname === existArticles['nickname']) {
     await Articles.updateOne(
       { articleId: articleId },
-      { $set: { title, content, price, shopUrl, imageUrl,category } }
+      { $set: 
+        { 
+        title, 
+        content, 
+        price, 
+        shopUrl, 
+        imageUrl,
+        category } }
     );
-    res.status(200).send({ message: "게시글을 수정했습니다." });
+  } else {
+    return res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다."  });
   }
+  res.status(200).send({ message: "게시글을 수정했습니다." });
 });
 
 //게시글 삭제
 router.delete("/:articleId", authMiddleware, async (req, res) => {
+  const userNickname = res.locals.user.nickname;
   const { articleId } = req.params;
 
-  const existArticles = await Articles.find({ articleId: articleId });
-
-  if (!existArticles.length) {
-    res.status(400).json({ errorMassege: "자신이 작성한 글만 삭제 가능합니다." });
-  } else {
+  const existArticles = await Articles.find({ articleId:articleId });
+  console.log(existArticles)
+  if (userNickname === existArticles['nickname']) {
     await Articles.deleteOne({ articleId: articleId });
-    res.status(200).json({ message: "게시글을 삭제했습니다." });
+    
+  } else {
+     res.status(400).send({ errorMessage: "자신이 작성한 글만 삭제 가능합니다." });
   }
+  res.status(200).send({ message: "게시글을 삭제했습니다." });
+  
 });
-
 
 //좋아요 (초안! 테스트 전)
 router.post("/like/:articleId", authMiddleware, async (req, res) => {
