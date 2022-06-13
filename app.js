@@ -42,7 +42,7 @@ app.use(cors({
 
 app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
-app.use('/api/image', [imageRouter]); // multer 사용하여 파일 업로드하는 기능 관련 라우팅
+app.use('/api/image', [imageRouter]); // multer 사용하여 파일 업로드하는 기능 관련 
 
 app.get('/', (req, res) => {
     //여기가 Router. 미들웨어와 유사하게 생김 (일종의 미들웨어다)request와 response
