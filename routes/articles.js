@@ -87,21 +87,23 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
 });
 
 //게시글 삭제
+
 router.delete("/:articleId", authMiddleware, async (req, res) => {
-  const userNickname = res.locals.user.nickname;
   const { articleId } = req.params;
-  const existArticles = await Articles.findOne({ articleId: articleId });
-  console.log(existArticles);
+  const userNickname = res.locals.user.nickname;
+  console.log(userNickname)
+  const article = await Articles.findOne({ articleId: articleId });
+  console.log(article, article["nickname"]);
   
-  if (userNickname === existArticles["nickname"]) {
-    await Articles.deleteOne({ articleId: articleId });
-    res.status(200).send({ message: "게시글을 삭제했습니다." });
+  if (userNickname === article["nickname"]) {
+    await Articles.deleteOne({ articleId: articleId });    
+    res.status(200).send({ message: "게시글을 삭제했습니다." });    
   } else {
-    res
-      .status(400)
-      .send({ errorMessage: "자신이 작성한 글만 삭제 가능합니다." });
+    return res.status(401).send({ errorMessage: "자신이 작성한 글만 삭제 가능합니다." });    
   }
+  
 });
+
 
 //좋아요 API
 router.post("/like/:articleId", authMiddleware, async (req, res) => {
