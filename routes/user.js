@@ -19,7 +19,8 @@ const postUsersSchema = Joi.object({
   passwordCheck: Joi.string().min(4).max(16).required(),
 });
 
-// 회원가입
+// 회원가입 ** 중복 ID, 중복 nickname 확인 API를 별도로 작성해서, 똑같은 코드가 반복되지만
+// 우선 frontend에서 중복확인을 누르지 않고는 가입 버튼을 못 누르게 처리가 된 건지 확인되지 않아서 확인 후 날릴지 결정
 router.post("/signup", async (req, res) => {
   try {
     const { userId, nickname, password, passwordCheck } =
@@ -92,6 +93,51 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+
+// userId 중복 확인
+router.get("/dup_userId/:userId", async (req, res) => {
+  const { userId } = req.params;
+  console.log (userId)
+  
+  const dup_userId = await User.find({
+    $or: [{ userId }],
+  });
+
+  console.log(dup_userId);
+
+  if (dup_userId.length) {
+    res.status(400).send({
+      errorMessage: "중복된 아이디입니다.",
+    });
+    return;
+  } else {
+    res.status(200).send({
+      message : "사용 가능한 ID입니다."
+    })
+  }
+});
+
+
+// nickname 중복 확인
+router.get("/dup_nickname/:nickname", async (req, res) => {
+  const { nickname } = req.params;
+  
+  const dup_nickname = await User.find({
+    $or: [{ nickname }],
+  });
+  if (dup_nickname.length) {
+    res.status(400).send({
+      errorMessage: "중복된 닉네임입니다.",
+    });
+    return;
+  } else {
+    res.status(200).send({
+      message : "사용 가능한 닉네임입니다."
+    })
+  }
+});
+
+
 //로그인
 const postAuthSchema = Joi.object({
   userId: Joi.string().min(4).max(16).required(),
@@ -128,7 +174,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user.userId }, 
       process.env.JWT_SECRET_KEY,
-      {expiresIn : "20m"}  
+      {expiresIn : "120m"}  
         
     );
     res.send({
