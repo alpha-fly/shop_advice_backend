@@ -144,9 +144,11 @@ router.post("/login", async (req, res) => {
 
 // 유저정보조회 (토큰 조회. 로그인 여부 확인)
 router.get("/me", authMiddleware, async (req, res) => {
-  const { user } = res.locals;
+  const { user } = res.locals;  
+  const userInfo = { userId : user.userId, nickname: user.nickname}
+  console.log (userInfo);
   res.send({
-    user,
+   userInfo,
   });
 });
 
