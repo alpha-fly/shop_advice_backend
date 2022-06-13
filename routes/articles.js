@@ -151,12 +151,8 @@ router.post("/like/:articleId", authMiddleware, async (req, res) => {
 //좋아요 갯수 알려주기 (초안! 테스트 이전) ** 비로그인 기능임. 단순히 조회
 router.get("/like/:articleId", async (req, res) => {    
     const { articleId } = req.params;    
-    const article = await Articles.find( {articleId} );
-    console.log (articleId, article)
-
-    const likes = article["likes"];
-
-    console.log (likes)
+    const article = await Articles.findOne( {articleId: Number(articleId)} );    
+    const likes = article["likes"];    
 
     res.json({
         likes,
