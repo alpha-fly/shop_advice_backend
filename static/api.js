@@ -349,3 +349,4 @@ function getLikesCount(articleId, callback) {
         },
     });
 }
+

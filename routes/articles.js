@@ -93,7 +93,8 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
   const userNickname = res.locals.user.nickname;
   console.log(userNickname)
   const article = await Articles.findOne({ articleId: articleId });
-  console.log(article, article["nickname"]);
+  console.log(article)
+  console.log(article["nickname"]);
   
   if (userNickname === article["nickname"]) {
     await Articles.deleteOne({ articleId: articleId });    
