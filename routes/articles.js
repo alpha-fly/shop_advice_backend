@@ -3,8 +3,6 @@ const authMiddleware = require("../middlewares/auth-middleware");
 const Articles = require("../models/articles");
 const Counters = require("../models/counters");
 
-const multer = require("multer");
-const path = require("path");
 
 const router = express.Router();
 
@@ -22,9 +20,9 @@ router.get("/", async (req, res) => {
 router.get("/:articleId", async (req, res) => {
   const { articleId } = req.params;
 
-  const [articles] = await Articles.find({ articleId: articleId });
+  const [article] = await Articles.find({ articleId: articleId });
   res.json({
-    articles,
+    article,
   });
 });
 
@@ -41,9 +39,9 @@ router.post("/", authMiddleware, async (req, res) => {
   counter.save();
   let articleId = counter.count;
 
-  if (!title || !content) {
+  if (!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
     res.status(400).send({
-      errormessage: "제목과 내용을 작성해주세요.",
+      errorMessage: "작성란을 모두 입력해주세요.",
     });
   }
 
@@ -60,7 +58,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
   res
     .status(201)
-    .send({ articles: createdArticles, message: "게시글이 작성되었습니다." });
+    .send({ article: createdArticles, message: "게시글을 작성했습니다." });
 });
 
 //게시글 수정
@@ -71,15 +69,21 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
   const existArticles = await Articles.find({
     articleId: articleId,
   });
+  
+  if(!title || !content|| !price || !shopUrl || !imageUrl ||!category) {
+    res.status(400).send({
+      errorMessage: "작성란을 모두 입력해주세요.",
+    });
+  }
 
   if (!existArticles.length) {
-    res.status(400).send({ errormessage: "게시글 작성자가 아닙니다." });
+    res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다." });
   } else {
     await Articles.updateOne(
       { articleId: articleId },
       { $set: { title, content, price, shopUrl, imageUrl,category } }
     );
-    res.status(200).send({ message: "수정이 완료되었습니다." });
+    res.status(200).send({ message: "게시글을 수정했습니다." });
   }
 });
 
@@ -90,10 +94,10 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
   const existArticles = await Articles.find({ articleId: articleId });
 
   if (!existArticles.length) {
-    res.status(400).json({ errormassege: "게시글 작성자가 아닙니다." });
+    res.status(400).json({ errorMassege: "자신이 작성한 글만 삭제 가능합니다." });
   } else {
     await Articles.deleteOne({ articleId: articleId });
-    res.status(200).json({ message: "게시글을 삭제하였습니다." });
+    res.status(200).json({ message: "게시글을 삭제했습니다." });
   }
 });
 
