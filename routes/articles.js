@@ -4,9 +4,6 @@ const Articles = require("../models/articles");
 const User = require("../models/user");
 const Counters = require("../models/counters");
 
-const multer = require("multer");
-const path = require("path");
-
 const router = express.Router();
 
 //전체 게시글 조회
@@ -42,9 +39,9 @@ router.post("/", authMiddleware, async (req, res) => {
   counter.save();
   let articleId = counter.count;
 
-  if (!title || !content) {
+  if (!title || !content || !price ||!shopUrl ||!imageUrl ||!category) {
     res.status(400).send({
-      errormessage: "제목과 내용을 작성해주세요.",
+      errormessage: "작성란을 모두 입력해주세요.",
     });
   }
 
@@ -74,6 +71,11 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
     articleId: articleId,
   });
 
+  if (!title || !content || !price ||!shopUrl ||!imageUrl ||!category) {
+    res.status(400).send({
+      errormessage: "작성란을 모두 입력해주세요.",
+    });
+  }
   
   if (userNickname === existArticles['nickname']) {
     await Articles.updateOne(
@@ -91,10 +93,7 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
 router.delete("/:articleId", authMiddleware, async (req, res) => {
   const { articleId } = req.params;
   const userNickname = res.locals.user.nickname;
-  console.log(userNickname)
   const article = await Articles.findOne({ articleId: articleId });
-  console.log(article)
-  console.log(article["nickname"]);
   
   if (userNickname === article["nickname"]) {
     await Articles.deleteOne({ articleId: articleId });    

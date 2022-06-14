@@ -1,29 +1,45 @@
 const express = require('express');
-const router = express.Router();
 const multer = require("multer");
 
-// 1. multer 미들웨어 등록
-let upload = multer({
-    dest: "upload/"
+const router = express.Router();
+const image = require('../models/image')
+
+//저장할 경로,uploads폴더 생성해 둘것
+const Storage = multer.diskStorage({
+    destination:'uploads',
+    filename:(req,file,cb) => {
+    cb(null,file.originalname);
+    },
 })
+//storage 어디에 저장할 것인지
+const upload = multer({
+    storage:Storage
+}).single('image')
 
-// 뷰 페이지 경로 
-router.get('/show', function(req, res, next) {
-    res.render("board")
+router.get('/',(req,res) => {
+    res.send('upload file');
 });
 
-// 2. 파일 업로드 처리
-router.post('/create', upload.single("imgFile"), function(req, res, next) {
-    // 3. 파일 객체
-    let file = req.file
-
-    // 4. 파일 정보
-    let result = {
-        originalName : file.originalname,
-        size : file.size,
+//파일업로드
+router.post('/upload', (req,res) =>{
+    upload(req,res,(err) => {
+        if(err){
+            console.log(err)
+        }else{
+        const newImage = new image({
+            
+            image:{
+                data:req.file.filename,
+                contentType:'image/png'
+            }
+        })
+        //데이터베이스 저장
+        newImage.save()
+        .then(() => res
+        .send('사진업로드 완료'))
+        .catch(err => console.log(err))
     }
-
-    res.json(result);
-});
+    })
+})
 
 module.exports = router;
