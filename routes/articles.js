@@ -20,9 +20,9 @@ router.get("/", async (req, res) => {
 router.get("/:articleId", async (req, res) => {
   const { articleId } = req.params;
 
-  const [articles] = await Articles.find({ articleId: articleId }); // findOne으로 변경
+  const [article] = await Articles.find({ articleId: articleId }); // findOne으로 변경
   res.json({
-    articles,
+    article,
   });
 });
 
