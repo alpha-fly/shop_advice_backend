@@ -24,8 +24,11 @@ const port = 3000;
 const articleRouter = require('./routes/articles');
 const userRouter = require('./routes/user');
 
+
 const imageRouter = require('./routes/upload');
-//const imageRouter = require('./routes/image'); // multer 사용하여 파일 업로드하는 기능 관련
+
+
+
 
 const requestMiddleware = (req, res, next) => {
     // ** app.use (미들웨어)의 순서 중요!!
@@ -45,7 +48,6 @@ app.use(cors({
 
 app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
-app.use('/api/image', [imageRouter]); // multer 사용하여 파일 업로드하는 기능 관련 라우팅
 
 app.get('/', (req, res) => {
     //여기가 Router. 미들웨어와 유사하게 생김 (일종의 미들웨어다)request와 response
@@ -53,7 +55,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-    const dir = "./uploadedFiles"; // multer 폴더 이름 지정
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir); // multer 폴더 생성
+    const dir = "./uploadedFiles"; // multer용 폴더 이름 지정
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir); // multer용 폴더 생성
     console.log(port, '포트로 서버가 켜졌어요!');
 });
