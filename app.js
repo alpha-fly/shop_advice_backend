@@ -20,8 +20,9 @@ db.on('error', console.error.bind(console, 'connection error:'));
 const app = express();
 const port = 3000;
 
-const articleRouter = require('./routes/articles');
 const userRouter = require('./routes/user');
+const articleRouter = require('./routes/articles');
+const commentRouter = require('./routes/comment');
 
 const requestMiddleware = (req, res, next) => {
     // ** app.use (미들웨어)의 순서 중요!!
@@ -39,16 +40,16 @@ app.use(cors({
     credential: 'true' // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
 }));
 
-app.use('/api/article', [articleRouter]);
 app.use('/api/user', [userRouter]);
+app.use('/api/article', [articleRouter]);
+app.use('/api/comment', [commentRouter]);
+
 
 app.get('/', (req, res) => {
     //여기가 Router. 미들웨어와 유사하게 생김 (일종의 미들웨어다)request와 response
     res.send('hello world');
 });
 
-app.listen(port, () => {
-    const dir = "./uploadedFiles"; // multer용 폴더 이름 지정
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir); // multer용 폴더 생성
+app.listen(port, () => {    
     console.log(port, '포트로 서버가 켜졌어요!');
 });

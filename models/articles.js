@@ -34,7 +34,7 @@ const articlesSchema = mongoose.Schema({
     type: String
   },
   createdAt: {
-    type: String,
+    type: Date,
     default: new Date(),
   },
   likes:{
