@@ -1,45 +1,25 @@
-const express = require('express');
+const express = require("express");
 const multer = require("multer");
-
 const router = express.Router();
-const image = require('../models/image')
 
-//저장할 경로,uploads폴더 생성해 둘것
-const Storage = multer.diskStorage({
-    destination:'uploads',
-    filename:(req,file,cb) => {
-    cb(null,file.originalname);
-    },
-})
-//storage 어디에 저장할 것인지
-const upload = multer({
-    storage:Storage
-}).single('image')
+const storage = multer.diskStorage({
+  //어디에 저장할 것인가
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  //파일이름
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
 
-router.get('/',(req,res) => {
-    res.send('upload file');
+router.get("/", (req, res) => {
+  res.send("upload");
 });
 
-//파일업로드
-router.post('/upload', (req,res) =>{
-    upload(req,res,(err) => {
-        if(err){
-            console.log(err)
-        }else{
-        const newImage = new image({
-            
-            image:{
-                data:req.file.filename,
-                contentType:'image/png'
-            }
-        })
-        //데이터베이스 저장
-        newImage.save()
-        .then(() => res
-        .send('사진업로드 완료'))
-        .catch(err => console.log(err))
-    }
-    })
-})
+router.post("/upload", upload.single("image"), (req, res) => {
+  res.send("upload:" + req.file.filename); 
+});
 
 module.exports = router;
