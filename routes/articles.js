@@ -67,22 +67,22 @@ router.post("/", authMiddleware, async (req, res) => {
 //게시글 수정
 router.put("/:articleId", authMiddleware, async (req, res) => {
   const { articleId } = req.params;
+  const userNickname = res.locals.user.nickname;
   const { title, content, price, shopUrl, imageUrl, category } = req.body;
 
   const existArticles = await Articles.find({
     articleId: articleId,
   });
 
-  // 해당 게시글의 작성자가 맞는지를 확인하는 로직이 없습니다.
-  if (!existArticles.length) {
-    // 이 조건문은 articleId로 작성된 게시글이 있는지만을 검사하는데 왜 이 조건을 검사하나요?
-    res.status(400).send({ errormessage: "게시글 작성자가 아닙니다." });
-  } else {
+  
+  if (userNickname === existArticles['nickname']) {
     await Articles.updateOne(
       { articleId: articleId },
       { $set: { title, content, price, shopUrl, imageUrl, category } }
     );
     res.status(200).send({ message: "수정이 완료되었습니다." });
+  } else {
+    return res.status(400).send({ errorMessage: "게시글 작성자가 아닙니다." });
   }
 });
 
