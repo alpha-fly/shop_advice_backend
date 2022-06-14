@@ -106,12 +106,12 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
 });
 
 //카테고리
-router.get('/category/:category',  async(req,res) => {
+router.get('/category/:category', async(req,res) => {
   const {category} = req.params;
   const [categorys] =await Articles.find({category:category});
   res.send({
     categorys,
-  })
+  });
 });
 
 //좋아요 API
