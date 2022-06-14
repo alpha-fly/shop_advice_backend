@@ -50,6 +50,7 @@ app.use(cors({
 app.use('/api/user', [userRouter]);
 app.use('/api/article', [articleRouter]);
 app.use('/api/comment', [commentRouter]);
+app.use('/api/image',[imageRouter]);
 
 
 app.get('/', (req, res) => {

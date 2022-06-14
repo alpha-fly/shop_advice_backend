@@ -39,7 +39,7 @@ router.post("/", authMiddleware, async (req, res) => {
   counter.save();
   let articleId = counter.count;
 
-  if (!title || !content || !price ||!shopUrl ||!imageUrl ||!category) {
+  if (!title ||!content ||!price ||!shopUrl ||!imageUrl ||!category) {
     res.status(400).send({
       errormessage: "작성란을 모두 입력해주세요.",
     });
@@ -56,7 +56,7 @@ router.post("/", authMiddleware, async (req, res) => {
     category,
   });
 
-  res
+ return res
     .status(201)
     .send({ articles: createdArticles, message: "게시글을 작성했습니다." }); 
 });
