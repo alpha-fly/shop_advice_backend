@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs'); // multer 때문에. 파일시스템 접근.
 
+
 mongoose
     .connect(process.env.MONGODB, {
         dbName: 'shop_advice',
@@ -22,7 +23,9 @@ const port = 3000;
 
 const articleRouter = require('./routes/articles');
 const userRouter = require('./routes/user');
-const imageRouter = require('./routes/image'); // multer 사용하여 파일 업로드하는 기능 관련
+
+const imageRouter = require('./routes/upload');
+//const imageRouter = require('./routes/image'); // multer 사용하여 파일 업로드하는 기능 관련
 
 const requestMiddleware = (req, res, next) => {
     // ** app.use (미들웨어)의 순서 중요!!
