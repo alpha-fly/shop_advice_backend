@@ -7,7 +7,6 @@ const User = require("../models/user");
 const authMiddleware = require("../middlewares/auth-middleware");
 const router = express.Router();
 
-
 const postUsersSchema = Joi.object({
   // userId: 3~10글자, 알파벳 대소문자, 숫자 가능
   userId: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,10}$")).required(),
@@ -84,59 +83,80 @@ router.post("/signup", async (req, res) => {
     }); //salt 추가
     await user.save();
 
-    res.status(201).send({ message: "회원가입을 축하합니다."});
+    res.status(201).json({ message: "회원가입을 축하합니다." });
   } catch (err) {
     console.log(err);
-    res.status(400).send({
+    res.status(400).json({
       errorMessage: "회원가입 형식을 확인해주세요.",
     });
   }
 });
 
 
+const postDupIdSchema = Joi.object({
+  userId: Joi.string().min(4).max(16).required(),
+});
+
 // userId 중복 확인
 router.get("/dup_userId/:userId", async (req, res) => {
-  const { userId } = req.params;
-  console.log (userId)
-  
-  const dup_userId = await User.find({
-    $or: [{ userId }],
-  });
+  try {
+    const { userId } = await postDupIdSchema.validateAsync(req.params);
 
-  console.log(dup_userId);
-
-  if (dup_userId.length) {
-    res.status(400).send({
-      errorMessage: "중복된 아이디입니다.",
+    const dup_userId = await User.find({
+      $or: [{ userId }],
     });
-    return;
-  } else {
-    res.status(200).send({
-      message : "사용 가능한 ID입니다."
-    })
+
+    if (dup_userId.length) {
+      res.status(400).json({
+        errorMessage: "중복된 아이디입니다.",
+      });
+      return;
+    } else {
+      res.status(200).json({
+        message: "사용 가능한 ID입니다.",
+      });
+    }
+
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      errorMessage: "회원가입 형식을 확인해주세요.",
+    });
   }
 });
 
+const postDupNicknameSchema = Joi.object({  
+  nickname: Joi.string()
+    .pattern(new RegExp("^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]{3,10}$"))
+    .required(),
+});
 
 // nickname 중복 확인
 router.get("/dup_nickname/:nickname", async (req, res) => {
-  const { nickname } = req.params;
-  
-  const dup_nickname = await User.find({
-    $or: [{ nickname }],
-  });
-  if (dup_nickname.length) {
-    res.status(400).send({
-      errorMessage: "중복된 닉네임입니다.",
+  try {
+    const { nickname } = await postDupNicknameSchema.validateAsync(req.params);
+
+    const dup_nickname = await User.find({
+      $or: [{ nickname }],
     });
-    return;
-  } else {
-    res.status(200).send({
-      message : "사용 가능한 닉네임입니다."
-    })
+    if (dup_nickname.length) {
+      res.status(400).json({
+        errorMessage: "중복된 닉네임입니다.",
+      });
+      return;
+    } else {
+      res.status(200).json({
+        message: "사용 가능한 닉네임입니다.",
+      });
+    }
+    
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({
+      errorMessage: "회원가입 형식을 확인해주세요.",
+    });
   }
 });
-
 
 //로그인
 const postAuthSchema = Joi.object({
@@ -148,13 +168,21 @@ router.post("/login", async (req, res) => {
   try {
     const { userId, password } = await postAuthSchema.validateAsync(req.body); // validation 전에는 일단 raw password
 
-    //raw password를 회원가입시와 동일한 로직으로 암호화한다. 이때 회원가입시 함께 저장해둔 salt를 가져와서 사용.        
+    const existUser = await User.findOne({ userId });
+
+    if (!existUser) {
+      res.status(400).json({
+        errorMessage: "아이디 또는 패스워드를 확인해주세요.",
+      });
+      return;
+    }
+
+    //raw password를 회원가입시와 동일한 로직으로 암호화한다. 이때 회원가입시 함께 저장해둔 salt를 가져와서 사용.
     const makePasswordHashed = (userId, password) =>
       new Promise(async (resolve, reject) => {
-        
-        const userFinder = await User.findOne({userId : userId})
+        const userFinder = await User.findOne({ userId: userId });
         const salt = userFinder.salt;
-                       
+
         crypto.pbkdf2(password, salt, 9999, 64, "sha512", (err, key) => {
           if (err) reject(err);
           resolve(key.toString("base64"));
@@ -162,27 +190,22 @@ router.post("/login", async (req, res) => {
       });
     const crypt_password = await makePasswordHashed(userId, password);
 
-    const user = await User.findOne({ userId, password:crypt_password }).exec();     
-
-    if (!user) {
-      res.status(400).send({
-        errorMessage: "아이디 또는 패스워드를 확인해주세요.",
-      });
-      return;
-    }    
+    const user = await User.findOne({
+      userId,
+      password: crypt_password,
+    }).exec();
 
     const token = jwt.sign(
-      { userId: user.userId }, 
+      { userId: user.userId },
       process.env.JWT_SECRET_KEY,
-      {expiresIn : "120m"}  
-        
+      { expiresIn: "120m" }
     );
     res.send({
       token,
     });
   } catch (err) {
     console.log(err);
-    res.status(400).send({
+    res.status(400).json({
       errorMessage: "아이디 또는 패스워드를 확인해주세요.",
     });
   }
@@ -190,11 +213,11 @@ router.post("/login", async (req, res) => {
 
 // 유저정보조회 (토큰 조회. 로그인 여부 확인)
 router.get("/me", authMiddleware, async (req, res) => {
-  const { user } = res.locals;  
-  const userInfo = { userId : user.userId, nickname: user.nickname}
-  console.log (userInfo);
+  const { user } = res.locals;
+  const userInfo = { userId: user.userId, nickname: user.nickname };
+  console.log(userInfo);
   res.send({
-   userInfo,
+    userInfo,
   });
 });
 
