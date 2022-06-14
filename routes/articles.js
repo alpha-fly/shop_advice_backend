@@ -108,9 +108,9 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
 //카테고리
 router.get('/category/:category', async(req,res) => {
   const {category} = req.params;
-  const [categorys] =await Articles.find({category:category});
+  const [categories] =await Articles.find({category:category});
   res.send({
-    categorys,
+    categories,
   });
 });
 
