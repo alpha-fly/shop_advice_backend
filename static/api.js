@@ -311,8 +311,7 @@ function signOut() {
 
 // 좋아요(테스트) ** 메시지 잘 받아오네?
 function like() {     // 실제 활용시 아래 행 삭제하고 like 함수에 인자로 articleId 넣어줄 것
-    const articleId = 12
-
+    
     $.ajax({
         type: 'POST',
         url: '/api/user/like', // 실제 활용시 당연히 url 주소 바꿔야 함 /api/article/like/${articleId} 이런 식으로
