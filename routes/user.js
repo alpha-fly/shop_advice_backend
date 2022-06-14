@@ -94,7 +94,7 @@ router.post("/signup", async (req, res) => {
 
 
 const postDupIdSchema = Joi.object({
-  userId: Joi.string().min(4).max(16).required(),
+  userId: Joi.string().min(3).max(10).required(),
 });
 
 // userId 중복 확인
