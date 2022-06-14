@@ -20,9 +20,9 @@ router.get("/", async (req, res) => {
 router.get("/:articleId", async (req, res) => {
   const { articleId } = req.params;
 
-  const [articles] = await Articles.find({ articleId: articleId }); // findOne으로 변경
+  const [article] = await Articles.find({ articleId: articleId }); // findOne으로 변경
   res.json({
-    articles,
+    article,
   });
 });
 
@@ -58,7 +58,7 @@ router.post("/", authMiddleware, async (req, res) => {
 
   res
     .status(201)
-    .send({ articles: createdArticles, message: "게시글이 작성되었습니다." }); //게시글 작성 여부만 리턴하면 되지 않나요? 작성된 게시글을 보내주는 이유는?
+    .send({ articles: createdArticles, message: "게시글을 작성했습니다." }); 
 });
 
 //게시글 수정
@@ -82,9 +82,9 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
       { articleId: articleId },
       { $set: { title, content, price, shopUrl, imageUrl, category } }
     );
-    res.status(200).send({ message: "수정이 완료되었습니다." });
+    res.status(200).send({ message: "게시글을 수정했습니다." });
   } else {
-    return res.status(400).send({ errorMessage: "게시글 작성자가 아닙니다." });
+    return res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다." });
   }
 });
 
