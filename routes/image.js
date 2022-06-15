@@ -13,7 +13,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         createdAt
     });
 
-  res.status(200).json({ success:"upload success" });
+  res.status(200).json({ imageUrl });
 });
 
 module.exports = router;
