@@ -90,6 +90,21 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
     });
   }
   
+  // 수정글을 작성하면서 사진 이미지도 새로 올렸다면(= imageUrl 값이 바뀌었다면)
+  if (existArticles.imageUrl === imageUrl) {
+    // 해당 게시글과 함께 S3에 올렸던 이미지 파일도 삭제
+    // .split은 bucket 내의 경로를 생성하기 위함.
+    s3.deleteObject({
+      Bucket : 'hh99-6th',
+      Key : existArticles.imageUrl.split(".com/",2)[1]
+    }, function(err, data){});
+    
+    // Images DB 에서도 정보 삭제
+    await Images.deleteOne({
+      imageUrl : existArticles.imageUrl
+    })
+  }
+  
   if (userNickname === existArticles['nickname']) {
     //user의 닉네임과 게시글에 포함된 닉네임이 같으면 게시글 수정
     await Articles.updateOne(
