@@ -1,11 +1,12 @@
 require("dotenv").config();
 const express = require("express");
+const router = express.Router();
 const crypto = require("crypto"); // crypto 사용
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const authMiddleware = require("../middlewares/auth-middleware");
-const router = express.Router();
+
 
 const postUsersSchema = Joi.object({
   // userId: 3~10글자, 알파벳 대소문자, 숫자 가능

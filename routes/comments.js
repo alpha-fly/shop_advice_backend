@@ -1,8 +1,8 @@
 const express = require('express');
-const Articles = require('../models/articles');
-const Comments = require('../models/comments');
-const Counters = require('../models/counters');
 const User = require('../models/user');
+const Articles = require('../models/article');
+const Comments = require('../models/comment');
+const Counters = require('../models/counter');
 const authMiddleware = require('../middlewares/auth-middleware');
 // const { db } = require('../models/articles');
 const router = express.Router();

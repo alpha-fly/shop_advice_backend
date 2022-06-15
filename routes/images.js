@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const Images = require("../models/image");
 const upload = require("../modules/multer");
-const Images = require("../models/images");
+
 
 router.post("/", upload.single("image"), async (req, res) => {
     console.log(req.file)
