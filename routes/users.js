@@ -10,7 +10,7 @@ const authMiddleware = require("../middlewares/auth-middleware");
 
 // <---회원가입 API-->
 // frontend 요청으로 중복 ID, 중복 nickname 확인 API를 별도로 작성해서, 똑같은 코드가 반복되고 있음.
-// 만일 frotend 화면에서 회원가입 버튼 클릭 이전에 중복확인 버튼 클릭이 강제된다면 내 코드를 삭제해도 되지만
+// 만일 frontend 화면에서 회원가입 버튼 클릭 이전에 중복확인 버튼 클릭이 강제된다면 내 코드를 삭제해도 되지만
 // 그렇지 않다면 남겨둬야 한다.
 // userId: 3~10글자, 알파벳 대소문자, 숫자 가능
 // nickname: 3~10글자, 알파벳 대소문자, 숫자, 한글 가능
@@ -106,6 +106,13 @@ router.get("/dup_userId/:userId", async (req, res) => {
   try {
     const { userId } = await postDupIdSchema.validateAsync(req.params);
 
+    if (!userid) {
+      res.status(400).json({
+        errorMessage: "회원가입 형식을 확인해주세요.",
+      });
+      return;
+    }
+
     const dup_userId = await User.find({
       $or: [{ userId }],
     });
@@ -141,9 +148,17 @@ router.get("/dup_nickname/:nickname", async (req, res) => {
   try {
     const { nickname } = await postDupNicknameSchema.validateAsync(req.params);
 
+    if (!nickname) {
+      res.status(400).json({
+        errorMessage: "회원가입 형식을 확인해주세요.",
+      });
+      return;
+    }
+
     const dup_nickname = await User.find({
       $or: [{ nickname }],
     });
+
     if (dup_nickname.length) {
       res.status(400).json({
         errorMessage: "중복된 닉네임입니다.",
