@@ -26,4 +26,5 @@ const upload = multer({
   // 파일 용량 제한 기준: AWS S3 free tier 
   // "5GB storage / 2,000번의 POST 요청" 기준으로 5GB/2000 = 2.56MB. 이보다 조금 보수적으로 잡아 1.5MB. 
 });
+
 module.exports = upload;
