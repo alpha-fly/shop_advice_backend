@@ -1,26 +1,27 @@
 const express = require('express');
-const Articles = require('../models/articles');
-const Comments = require('../models/comments');
-const Counters = require('../models/counters');
 const User = require('../models/user');
+const Articles = require('../models/article');
+const Comments = require('../models/comment');
+const Counters = require('../models/counter');
 const authMiddleware = require('../middlewares/auth-middleware');
 // const { db } = require('../models/articles');
 const router = express.Router();
 
 
-// 댓글 작성 API (*로그인!)
+// <---댓글 작성 API-->
+// 댓글은 '어디에 달린 댓글인지' 즉 원글이 중요하기 때문에 articleId를 함께 DB에 저장합니다.
 router.post('/:articleId', authMiddleware, async (req, res) => {
     const { articleId } = req.params;
-    const nickname = res.locals.user.nickname;
-    // const location = articleId;
-    const { createdAt, comment } = req.body;    
+    const nickname = res.locals.user.nickname;    
+    const { comment } = req.body;    
+    const createdAt = new Date();
 
     if (!comment) {
         return res.status(400).json({            
             errorMessage: '작성란을 채워주세요.',
         });
     }
-    //댓글id commentId 자동 카운팅
+    //commentId 자동 카운팅
     let counter = await Counters.findOne({ name: 'Comments' }).exec();
     if (!counter) {
         counter = await Counters.create({ name: 'Comments', count: 0 });
@@ -40,11 +41,13 @@ router.post('/:articleId', authMiddleware, async (req, res) => {
     res.json({ message: '댓글을 작성했습니다.' });
 });
 
-// 댓글 조회 API (no login!!)
+
+// <---댓글 조회 API-->
 router.get('/:articleId', async (req, res) => {
     const { articleId } = req.params;
     const all_comments = await Comments.find();
-    //여기부터
+
+    //여기부터 async fuction 내부에서 .filter를 쓰기 위한 몸부림입니다.
     const filtered_comments = await asyncFilter(all_comments, async (item) => {
         await doAsyncStuff();
         return item['articleId'] == articleId;
@@ -80,7 +83,7 @@ router.get('/:articleId', async (req, res) => {
 });
 
 
-//댓글 삭제
+// <---댓글 삭제 API-->
 router.delete('/:commentId', authMiddleware, async (req, res) => {
     const { commentId } = req.params;
     const comment = await Comments.findOne({ commentId: commentId });
@@ -97,7 +100,8 @@ router.delete('/:commentId', authMiddleware, async (req, res) => {
     res.json({ message: '댓글을 삭제하였습니다.' });
 });
 
-//댓글 수정
+
+// <---댓글 삭제 API-->
 router.put('/:commentId', authMiddleware, async (req, res) => {
     const { commentId } = req.params;
     const original_comment = await Comments.findOne({ commentId: commentId });
