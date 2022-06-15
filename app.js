@@ -20,12 +20,12 @@ db.on('error', console.error.bind(console, 'connection error:'));
 const app = express();
 const port = 3000;
 
-const userRouter = require('./routes/user');
+const userRouter = require('./routes/users');
 const articleRouter = require('./routes/articles');
-const commentRouter = require('./routes/comment');
-const imageRouter = require('./routes/image');
+const commentRouter = require('./routes/comments');
+const imageRouter = require('./routes/images');
 
-const domains = ['http://shop-advice.s3-website.ap-northeast-2.amazonaws.com'];
+const domains = ['http://shop-advice.s3-website.ap-northeast-2.amazonaws.com', "http://localhost:3000"];
 const corsOptions = {
   origin: function(origin, callback){
   	const isTrue = domains.indexOf(origin) !== -1;
