@@ -9,8 +9,8 @@ const router = express.Router();
 //전체 게시글 조회
 
 router.get("/", async (req, res) => {
-  const articles = await Articles.find().sort({ date: -1 });
-
+  //게시글들을 내림차순으로 정렬해서 보여준다.
+  const articles = await Articles.find().sort({ date: -1 }); 
   res.json({
     articles,
   });
@@ -18,9 +18,9 @@ router.get("/", async (req, res) => {
 
 //게시글 상세 조회
 router.get("/:articleId", async (req, res) => {
+  //원하는 articleId가 포함된 내용을 찾아온다.
   const { articleId } = req.params;
-
-  const [article] = await Articles.find({ articleId: articleId }); // findOne으로 변경
+  const [article] = await Articles.findOne({ articleId: articleId }); 
   res.json({
     article,
   });
@@ -28,22 +28,24 @@ router.get("/:articleId", async (req, res) => {
 
 //게시글 작성
 router.post("/", authMiddleware, async (req, res) => {
-  const nickname = res.locals.user.nickname;
-  const { title, content, price, shopUrl, imageUrl, category } = req.body;
-
+  //작성자의 닉네임을 가지고와 게시글 내용들과 같이 게시한다.
+  const nickname = res.locals.user.nickname; 
+  const { title, content, price, shopUrl, imageUrl, category } = req.body; 
+  const createdAt = new Date();
+ //articleId를 카운팅해준다.
   let counter = await Counters.findOne({ name: "Articles" }).exec();
   if (!counter) {
-    counter = await Counters.create({ name: "Articles", count: 0 });
+    counter = await Counters.create({ name: "Articles", count: 0 }); 
   }
   counter.count++;
   counter.save();
-  let articleId = counter.count;
+  let articleId = counter.count;  
 
   if (!title ||!content ||!price ||!shopUrl ||!imageUrl ||!category) {
     res.status(400).send({
-      errormessage: "작성란을 모두 입력해주세요.",
+      errorMessage: "작성란을 모두 입력해주세요.",
     });
-  }
+  } //title, content, price, shopUrl, imageUrl, category 중 하나라도 입력이 안되어있으면 errMessage
 
   const createdArticles = await Articles.create({
     title,
@@ -54,7 +56,8 @@ router.post("/", authMiddleware, async (req, res) => {
     shopUrl,
     imageUrl,
     category,
-  });
+    createdAt,
+  }); 
 
  return res
     .status(201)
@@ -78,10 +81,11 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
   }
   
   if (userNickname === existArticles['nickname']) {
+    //user의 닉네임과 게시글에 포함된 닉네임이 같으면 게시글 수정
     await Articles.updateOne(
       { articleId: articleId },
       { $set: { title, content, price, shopUrl, imageUrl, category } }
-    );
+    ); 
     res.status(200).send({ message: "게시글을 수정했습니다." });
   } else {
     return res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다." });
@@ -93,25 +97,35 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
 router.delete("/:articleId", authMiddleware, async (req, res) => {
   const { articleId } = req.params;
   const userNickname = res.locals.user.nickname;
-  const article = await Articles.findOne({ articleId: articleId });
-  
-  if (userNickname === article["nickname"]) {
-    await Articles.deleteOne({ articleId: articleId });    
-    res.status(200).send({ message: "게시글을 삭제했습니다." });    
+  const article = await Articles.findOne({ 
+    articleId: articleId 
+  });
+  //user의 닉네임과 게시글에 포함된 닉네임이 같으면 게시글 삭제
+  if (userNickname === article["nickname"]) { 
+    await Articles.deleteOne({ 
+      articleId: articleId 
+    });    
+    res.status(200).send({ 
+      message: "게시글을 삭제했습니다.", 
+    });    
   } else {
-    return res.status(401).send({ errorMessage: "자신이 작성한 글만 삭제 가능합니다." });    
+    return res.status(401).send({ 
+      errorMessage: "자신이 작성한 글만 삭제 가능합니다.",
+     });    
   }
   
 });
 
 //카테고리
 router.get('/category/:category', async(req,res) => {
+  //원하는 카테고리가 포함된 게시글들을 불러온다.
   const {category} = req.params;
   const [categories] =await Articles.find({category:category});
   res.send({
     categories,
   });
-});
+}); 
+
 
 //좋아요 API
 router.post("/like/:articleId", authMiddleware, async (req, res) => {
