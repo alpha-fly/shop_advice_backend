@@ -128,6 +128,8 @@ router.get('/category/:category', async(req,res) => {
 
 
 
+
+
 // <---좋아요 API-->
 router.post("/like/:articleId", authMiddleware, async (req, res) => {
   // 변수 UserLikesArray에, 해당 유저가 지금까지 좋아요 한 글들의 articleId를 모아놓은 [배열] user.likes를 user DB에서 가져와 할당한다.
@@ -148,10 +150,13 @@ router.post("/like/:articleId", authMiddleware, async (req, res) => {
     articleLikes--;
     await Articles.updateOne({ articleId }, { $set: { likes: articleLikes } });
 
-    res.status(200).send({ message: "사세요! 해제하셨습니다." });
+    res.status(200).json({ message: "사세요! 해제하셨습니다." });
 
-    // 좋아요를 실행한다! UserLikesArray에 아직 좋아요 하려는 글의 articleId가 없다면.
-    // 1) UserLikesArray에서 현재 글의 articleId를 추가해주고 2)현재 글의 likes 숫자를 하나 더해준다.
+
+
+  // 좋아요를 실행한다! UserLikesArray에 아직 좋아요 하려는 글의 articleId가 없다면.
+  // 1) UserLikesArray에서 현재 글의 articleId를 추가해주고 2)현재 글의 likes 숫자를 하나 더해준다.
+
   } else {
     UserLikesArray.push(articleId);
     await User.updateOne(
@@ -161,7 +166,7 @@ router.post("/like/:articleId", authMiddleware, async (req, res) => {
 
     articleLikes++;
     await Articles.updateOne({ articleId }, { $set: { likes: articleLikes } });
-    res.status(200).send({ message: "사세요! 하셨습니다." });
+    res.status(200).json({ message: "사세요! 하셨습니다." });
   }
 });
 
