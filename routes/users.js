@@ -102,16 +102,9 @@ const postDupIdSchema = Joi.object({
   userId: Joi.string().min(3).max(10).required(),
 });
 
-router.get("/dup_userId/:userId", async (req, res) => {
+router.post("/dup_userId", async (req, res) => {
   try {
-    const { userId } = await postDupIdSchema.validateAsync(req.params);
-
-    if (!userid) {
-      res.status(400).json({
-        errorMessage: "회원가입 형식을 확인해주세요.",
-      });
-      return;
-    }
+    const { userId } = await postDupIdSchema.validateAsync(req.body);    
 
     const dup_userId = await User.find({
       $or: [{ userId }],
@@ -144,17 +137,10 @@ const postDupNicknameSchema = Joi.object({
     .required(),
 });
 
-router.get("/dup_nickname/:nickname", async (req, res) => {
+router.post("/dup_nickname", async (req, res) => {
   try {
-    const { nickname } = await postDupNicknameSchema.validateAsync(req.params);
-
-    if (!nickname) {
-      res.status(400).json({
-        errorMessage: "회원가입 형식을 확인해주세요.",
-      });
-      return;
-    }
-
+    const { nickname } = await postDupNicknameSchema.validateAsync(req.body);
+   
     const dup_nickname = await User.find({
       $or: [{ nickname }],
     });
