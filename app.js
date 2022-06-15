@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs'); // multer 때문에. 파일시스템 접근.
 
-
 mongoose
     .connect(process.env.MONGODB, {
         dbName: 'shop_advice',
@@ -24,12 +23,7 @@ const port = 3000;
 const userRouter = require('./routes/user');
 const articleRouter = require('./routes/articles');
 const commentRouter = require('./routes/comment');
-
-
-const imageRouter = require('./routes/upload');
-
-
-
+const imageRouter = require('./routes/image');
 
 const requestMiddleware = (req, res, next) => {
     // ** app.use (미들웨어)의 순서 중요!!
@@ -51,7 +45,6 @@ app.use('/api/user', [userRouter]);
 app.use('/api/article', [articleRouter]);
 app.use('/api/comment', [commentRouter]);
 app.use('/api/image',[imageRouter]);
-
 
 app.get('/', (req, res) => {
     //여기가 Router. 미들웨어와 유사하게 생김 (일종의 미들웨어다)request와 response
