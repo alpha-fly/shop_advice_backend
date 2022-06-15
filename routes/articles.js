@@ -6,8 +6,8 @@ const Counters = require("../models/counter");
 
 const router = express.Router();
 
-//전체 게시글 조회
 
+//전체 게시글 조회
 router.get("/", async (req, res) => {
   //게시글들을 내림차순으로 정렬해서 보여준다.
   const articles = await Articles.find().sort({ date: -1 }); 
@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
     articles,
   });
 });
+
 
 //게시글 상세 조회
 router.get("/:articleId", async (req, res) => {
@@ -25,6 +26,7 @@ router.get("/:articleId", async (req, res) => {
     article,
   });
 });
+
 
 //게시글 작성
 router.post("/", authMiddleware, async (req, res) => {
@@ -64,6 +66,7 @@ router.post("/", authMiddleware, async (req, res) => {
     .send({ articles: createdArticles, message: "게시글을 작성했습니다." }); 
 });
 
+
 //게시글 수정
 router.put("/:articleId", authMiddleware, async (req, res) => {
   const { articleId } = req.params;
@@ -92,8 +95,8 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
   }
 });
 
-//게시글 삭제
 
+//게시글 삭제
 router.delete("/:articleId", authMiddleware, async (req, res) => {
   const { articleId } = req.params;
   const userNickname = res.locals.user.nickname;
@@ -116,6 +119,7 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
   
 });
 
+
 //카테고리
 router.get('/category/:category', async(req,res) => {
   //원하는 카테고리가 포함된 게시글들을 불러온다.
@@ -125,9 +129,6 @@ router.get('/category/:category', async(req,res) => {
     categories,
   });
 }); 
-
-
-
 
 
 // <---좋아요 API-->
@@ -151,8 +152,6 @@ router.post("/like/:articleId", authMiddleware, async (req, res) => {
     await Articles.updateOne({ articleId }, { $set: { likes: articleLikes } });
 
     res.status(200).json({ message: "사세요! 해제하셨습니다." });
-
-
 
   // 좋아요를 실행한다! UserLikesArray에 아직 좋아요 하려는 글의 articleId가 없다면.
   // 1) UserLikesArray에서 현재 글의 articleId를 추가해주고 2)현재 글의 likes 숫자를 하나 더해준다.
