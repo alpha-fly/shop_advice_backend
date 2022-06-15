@@ -17,7 +17,7 @@ aws.config.update({
 //전체 게시글 조회
 router.get("/", async (req, res) => {
   //게시글들을 내림차순으로 정렬해서 보여준다.
-  const articles = await Articles.find().sort({ date: -1 }); 
+  const articles = await Articles.find().sort({ createdAt: -1 }); 
   res.json({
     articles,
   });
