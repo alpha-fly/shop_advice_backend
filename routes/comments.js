@@ -18,7 +18,7 @@ router.post('/:articleId', authMiddleware, async (req, res) => {
 
     if (!comment) {
         return res.status(400).json({            
-            errormessage: '작성란을 채워주세요.',
+            errorMessage: '작성란을 채워주세요.',
         });
     }
     //commentId 자동 카운팅
@@ -110,7 +110,7 @@ router.put('/:commentId', authMiddleware, async (req, res) => {
     
     if (!original_comment) {
         return res.status(400).json({            
-            errormessage: '작성란을 채워주세요.',
+            errorMessage: '작성란을 채워주세요.',
         });
     }
 
@@ -121,7 +121,7 @@ router.put('/:commentId', authMiddleware, async (req, res) => {
         );
     } else {
         return res.status(401).json({            
-            errormessage: '작성자만 수정할 수 있습니다.',
+            errorMessage: '작성자만 수정할 수 있습니다.',
         });
     }
 
