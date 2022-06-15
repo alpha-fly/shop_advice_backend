@@ -37,7 +37,7 @@ app.use(express.urlencoded());
 app.use(requestMiddleware); // 콘솔에 request 들어오면 url이랑 날짜 찍어주는.
 
 app.use(cors({
-    origin: 'http://localhost:3000', // 출처 허용 옵션, 아스테리스크로 놓지 말고 frontend 출처로 변경할 것!
+    origin: 'http://shop-advice.s3-website.ap-northeast-2.amazonaws.com/', // 출처 허용 옵션, 아스테리스크로 놓지 말고 frontend 출처로 변경할 것!
     credential: 'true' // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
 }));
 
