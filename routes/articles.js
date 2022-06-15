@@ -2,10 +2,17 @@ const express = require("express");
 const authMiddleware = require("../middlewares/auth-middleware");
 const User = require("../models/user");
 const Articles = require("../models/article");
+const Images = require("../models/image");
 const Counters = require("../models/counter");
-
 const router = express.Router();
 
+const aws = require('aws-sdk');
+const s3 = new aws.S3();
+aws.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region : 'ap-northeast-2'
+})
 
 //전체 게시글 조회
 router.get("/", async (req, res) => {
@@ -108,6 +115,19 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
     await Articles.deleteOne({ 
       articleId: articleId 
     });    
+
+    // 해당 게시글과 함께 S3에 올렸던 이미지 파일도 삭제
+    // .split은 bucket 내의 경로를 생성하기 위함.
+    s3.deleteObject({
+      Bucket : 'hh99-6th',
+      Key : article.imageUrl.split(".com/",2)[1]
+    }, function(err, data){});
+    
+    // Images DB 에서도 정보 삭제
+    await Images.deleteOne({
+      imageUrl : article.imageUrl
+    })
+
     res.status(200).send({ 
       message: "게시글을 삭제했습니다.", 
     });    
