@@ -1,17 +1,19 @@
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
-const crypto = require("crypto"); // crypto 사용
+const crypto = require("crypto"); 
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const authMiddleware = require("../middlewares/auth-middleware");
 
 
+// <---회원가입 API-->
+// frontend 요청으로 중복 ID, 중복 nickname 확인 API를 별도로 작성해서, 똑같은 코드가 반복되고 있음.
+// userId: 3~10글자, 알파벳 대소문자, 숫자 가능
+// nickname: 3~10글자, 알파벳 대소문자, 숫자, 한글 가능
 const postUsersSchema = Joi.object({
-  // userId: 3~10글자, 알파벳 대소문자, 숫자 가능
   userId: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,10}$")).required(),
-  // nickname: 3~10글자, 알파벳 대소문자, 숫자, 한글 가능
   nickname: Joi.string()
     .pattern(new RegExp("^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]{3,10}$"))
     .required(),
@@ -19,8 +21,6 @@ const postUsersSchema = Joi.object({
   passwordCheck: Joi.string().min(4).max(16).required(),
 });
 
-// 회원가입 ** 중복 ID, 중복 nickname 확인 API를 별도로 작성해서, 똑같은 코드가 반복되지만
-// 우선 frontend에서 중복확인을 누르지 않고는 가입 버튼을 못 누르게 처리가 된 건지 확인되지 않아서 확인 후 날릴지 결정
 router.post("/signup", async (req, res) => {
   try {
     const { userId, nickname, password, passwordCheck } =
@@ -53,6 +53,7 @@ router.post("/signup", async (req, res) => {
       return;
     }
 
+    //이하는 비밀번호 암호화 과정.
     //Crypto 모듈의 randomBytes 메소드를 통해 Salt를 반환하는 함수를 작성한다.
     const createSalt = () =>
       new Promise((resolve, reject) => {
@@ -81,7 +82,7 @@ router.post("/signup", async (req, res) => {
       nickname,
       password: crypt_password,
       salt,
-    }); //salt 추가
+    }); 
     await user.save();
 
     res.status(201).json({ message: "회원가입을 축하합니다." });
@@ -94,11 +95,11 @@ router.post("/signup", async (req, res) => {
 });
 
 
+// <---userId 중복확인 API-->
 const postDupIdSchema = Joi.object({
   userId: Joi.string().min(3).max(10).required(),
 });
 
-// userId 중복 확인
 router.get("/dup_userId/:userId", async (req, res) => {
   try {
     const { userId } = await postDupIdSchema.validateAsync(req.params);
@@ -126,13 +127,14 @@ router.get("/dup_userId/:userId", async (req, res) => {
   }
 });
 
+
+// <---nickname 중복확인 API-->
 const postDupNicknameSchema = Joi.object({  
   nickname: Joi.string()
     .pattern(new RegExp("^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣]{3,10}$"))
     .required(),
 });
 
-// nickname 중복 확인
 router.get("/dup_nickname/:nickname", async (req, res) => {
   try {
     const { nickname } = await postDupNicknameSchema.validateAsync(req.params);
@@ -159,16 +161,17 @@ router.get("/dup_nickname/:nickname", async (req, res) => {
   }
 });
 
-//로그인
+
+// <---로그인 API-->
 const postAuthSchema = Joi.object({
-  userId: Joi.string().min(4).max(16).required(),
+  userId: Joi.string().min(3).max(10).required(),
   password: Joi.string().required(),
 });
 
 router.post("/login", async (req, res) => {
   try {
-    const { userId, password } = await postAuthSchema.validateAsync(req.body); // validation 전에는 일단 raw password
-
+    //사용자가 입력하는 password는 암호화 이전의 값임. Joi로 validation 부터 검사. 
+    const { userId, password } = await postAuthSchema.validateAsync(req.body); 
     const existUser = await User.findOne({ userId });
 
     if (!existUser) {
@@ -178,7 +181,8 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    //raw password를 회원가입시와 동일한 로직으로 암호화한다. 이때 회원가입시 함께 저장해둔 salt를 가져와서 사용.
+    //입력받은 password를 회원가입시와 동일한 로직으로 암호화한다. 
+    //이때 회원가입시 함께 저장해둔 salt를 가져와서 사용.
     const makePasswordHashed = (userId, password) =>
       new Promise(async (resolve, reject) => {
         const userFinder = await User.findOne({ userId: userId });
@@ -212,8 +216,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// 유저정보조회 (토큰 조회. 로그인 여부 확인)
+
+// <---유저정보조회(토큰 내용 확인) API-->
 router.get("/me", authMiddleware, async (req, res) => {
+  // res.locals에는 user DB로 관리되는 모든 값이 들어 있다. 
+  // password, likes[] 등은 유저 확인에는 불필요하므로, userId와 nickname만 리턴한다. 
   const { user } = res.locals;
   const userInfo = { userId: user.userId, nickname: user.nickname };
   console.log(userInfo);
