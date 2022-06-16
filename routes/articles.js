@@ -42,7 +42,7 @@ router.post("/", authMiddleware, async (req, res) => {
   let articleId = counter.count;  
 
   if (!title ||!content ||!price ||!shopUrl ||!imageUrl ||!category) {
-    res.status(400).send({
+    return res.status(400).send({
       errorMessage: "작성란을 모두 입력해주세요.",
     });
   } //title, content, price, shopUrl, imageUrl, category 중 하나라도 입력이 안되어있으면 errMessage
@@ -75,7 +75,7 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
   });
 
   if (!title || !content || !price ||!shopUrl ||!imageUrl ||!category) {
-    res.status(400).send({
+    return res.status(400).send({
       errormessage: "작성란을 모두 입력해주세요.",
     });
   }
@@ -86,7 +86,7 @@ router.put("/:articleId", authMiddleware, async (req, res) => {
       { articleId: articleId },
       { $set: { title, content, price, shopUrl, imageUrl, category } }
     ); 
-    res.status(200).send({ message: "게시글을 수정했습니다." });
+    return res.status(200).send({ message: "게시글을 수정했습니다." });
   } else {
     return res.status(400).send({ errorMessage: "자신이 작성한 글만 수정 가능합니다." });
   }
@@ -105,7 +105,7 @@ router.delete("/:articleId", authMiddleware, async (req, res) => {
     await Articles.deleteOne({ 
       articleId: articleId 
     });    
-    res.status(200).send({ 
+    return res.status(200).send({ 
       message: "게시글을 삭제했습니다.", 
     });    
   } else {
@@ -121,7 +121,7 @@ router.get('/category/:category', async(req,res) => {
   //원하는 카테고리가 포함된 게시글들을 불러온다.
   const {category} = req.params;
   const [categories] =await Articles.find({category:category});
-  res.send({
+  return res.send({
     categories,
   });
 }); 
