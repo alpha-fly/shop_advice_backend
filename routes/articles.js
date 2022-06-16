@@ -68,7 +68,7 @@ router.post("/", authMiddleware, async (req, res) => {
     createdAt,
   }); 
 
- return res
+  res
     .status(201)
     .send({ articles: createdArticles, message: "게시글을 작성했습니다." }); 
 });
