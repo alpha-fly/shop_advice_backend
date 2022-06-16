@@ -51,7 +51,7 @@ router.post("/", authMiddleware, async (req, res) => {
   let articleId = counter.count;  
 
   if (!title ||!content ||!price ||!shopUrl ||!imageUrl ||!category) {
-    res.status(400).send({
+    return res.status(400).send({
       errorMessage: "작성란을 모두 입력해주세요.",
     });
   } //title, content, price, shopUrl, imageUrl, category 중 하나라도 입력이 안되어있으면 errMessage
