@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
 router.get("/:articleId", async (req, res) => {
   //원하는 articleId가 포함된 내용을 찾아온다.
   const { articleId } = req.params;
-  const [article] = await Articles.findOne({ articleId: articleId }); 
+  const article = await Articles.findOne({ articleId: articleId }); 
   res.json({
     article,
   });
