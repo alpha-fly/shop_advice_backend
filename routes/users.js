@@ -69,7 +69,8 @@ router.post("/signup", async (req, res) => {
     const createHashedPassword = (password) =>
       new Promise(async (resolve, reject) => {
         const salt = await createSalt();
-        crypto.pbkdf2(password, salt, 9999, 64, "sha512", (err, key) => {
+        //인자 순서대로 : ( password, salt, iterations, keylen, digest, callback )
+        crypto.pbkdf2(password, salt, 9999, 256, "sha512", (err, key) => {
           if (err) reject(err);
           resolve({ crypt_password: key.toString("base64"), salt });
         });
@@ -190,8 +191,8 @@ router.post("/login", async (req, res) => {
       new Promise(async (resolve, reject) => {
         const userFinder = await User.findOne({ userId: userId });
         const salt = userFinder.salt;
-
-        crypto.pbkdf2(password, salt, 9999, 64, "sha512", (err, key) => {
+      
+        crypto.pbkdf2(password, salt, 9999, 256, "sha512", (err, key) => {
           if (err) reject(err);
           resolve(key.toString("base64"));
         });
